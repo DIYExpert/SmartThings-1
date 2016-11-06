@@ -241,22 +241,7 @@ def createEvent(physicalgraph.zwave.commands.firmwareupdatemdv1.FirmwareMdReport
     log.debug "firmwareId:     ${cmd.firmwareId}"
     log.debug "manufacturerId: ${cmd.manufacturerId}"
 }
-/*
-def zwaveEvent(physicalgraph.zwave.commands.sensoralarmv1.SensorAlarmReport cmd)
-{
-	def map = [:]
-    map.name = "acceleration"
 
-	map.value = cmd.sensorState ? "active" : "inactive"
-	if (map.value == "active") {
-		map.descriptionText = "$device.displayName detected vibration"
-	}
-	else {
-		map.descriptionText = "$device.displayName vibration has stopped"
-	}
-    map
-}
-*/
 
 // Event Generation
 def zwaveEvent(physicalgraph.zwave.commands.wakeupv1.WakeUpNotification cmd)
@@ -303,6 +288,7 @@ def zwaveEvent(physicalgraph.zwave.commands.notificationv3.NotificationReport cm
 			result = createEvent(name: "acceleration", value: "inactive", descriptionText: "$device.displayName Vibration No Longer Detected")
 		}
 	}
+    else log.debug "notif" + cmd.notificationType + " " + cmd.event
 	return result
 }
 		
@@ -317,10 +303,11 @@ log.debug cmd
 	map.displayed = false
 	map
 }
-/*
+
 def zwaveEvent(physicalgraph.zwave.commands.sensorbinaryv1.SensorBinaryReport cmd) {
 	def map = [:]
-	map.value = cmd.sensorValue ? "active" : "inactive"
+    log.debug "got sensor binary: ${cmd.sensorValue.toString()}" 
+	map.value = cmd.sensorValue  == 0 ? "inactive" : "active" 
 	map.name = "motion"
 	if (map.value == "active") {
 		map.descriptionText = "$device.displayName detected motion"
@@ -331,19 +318,23 @@ def zwaveEvent(physicalgraph.zwave.commands.sensorbinaryv1.SensorBinaryReport cm
 	map
 }
 
+
 def zwaveEvent(physicalgraph.zwave.commands.basicv1.BasicSet cmd) {
 	def map = [:]
-	map.value = cmd.value ? "active" : "inactive"
+    log.debug "got basic cmd: ${cmd.value.toString()}" 
+	map.value =  cmd.value == 0 ? "inactive" : "active" 
 	map.name = "motion"
 	if (map.value == "active") {
+    	 log.debug "got active "
 		map.descriptionText = "$device.displayName detected motion"
 	}
 	else {
+     	 log.debug "got no motion" 
 		map.descriptionText = "$device.displayName motion has stopped"
 	}
 	map
 }
-*/
+
 
 def zwaveEvent(physicalgraph.zwave.Command cmd) {
 	log.debug "Catchall reached for cmd: ${cmd.toString()}}"
@@ -508,4 +499,3 @@ def listCurrentParams() {
     
 	delayBetween(cmds, 500)
 }
-
